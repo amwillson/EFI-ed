@@ -1,11 +1,36 @@
-install.packages('dplyr')
+#install.packages('dplyr')
+#install.packages("pivottabler")
+#install.packages("tidyr")
+#install.packages("janitor")
+
+# Clearn environment
+rm(list = ls())
+
+# Load libraries
 library(dplyr)
+library(readxl)
+library(pivottabler)
+library(tidyr)
+library(janitor)
+library(tidyverse)
+library(nnet)
+
+#### Load in data ####
+
+# Typically, we start by writing code to load in the data
+# You used the import from Excel function, which is the equivalent of
+# the following code
+Courses_by_school <- read_excel('Courses_by_school.xlsx', sheet = 'Data (Hayden)')
+
+#### Clean up data ####
 ef.data <- data.frame(Courses_by_school) #push data to dataframe
+# Here you're just printing the dataframe, minus the "College" column
 select(ef.data, -College)
 ef.data <- select(Courses_by_school, -c(URL, Notes)) #remove unnecessary columns of dataset
 ef.data <- select(ef.data, -last_col()) #remove unnecessary columns of dataset
+
 summary(ef.data)
-distinct(ef.data, `Sub-topic`) 
+distinct(ef.data, `Sub-topic`)
 ef.data$`Sub-topic` <- recode(ef.data$`Sub-topic`, #renaming variables so that they are uniform
                               `Basic of Ecology` = "Basics of Ecology",
                               `Basics of coding` = "Basics of Coding",
@@ -42,10 +67,11 @@ ef.data$`Sub-topic` <- recode(ef.data$`Sub-topic`, #renaming variables so that t
                               `Workflows and open science` = "Workflows & open science",
                               `Workflows and Open science` = "Workflows & open science",
                               `working with data/data manipulation` = "Working with data/data manipulation")
-#want to consolidate the dataset by 
+
+#### Summarize data ####
+
+# want to consolidate the dataset by 
 # need to go through dataset and for each unique college name count number of sub-topics and count of each 
-install.packages("pivottabler")
-library(pivottabler)
 pt <- PivotTable$new() # create pivottable 
 pt$addData(ef.data) #populate with ef.data
 pt$addColumnDataGroups("Sub-topic") #using Sub-Topic data to populate pivottable
@@ -53,16 +79,15 @@ pt$defineCalculation(calculationName="TotalCourses", summariseExpression="n()") 
 pt$renderPivot() #create pivot table 
 summary_subtopic <- pt$asDataFrame() #pushing pivottable to dataframe for easier use and analysis later
 summary_subtopic
-install.packages("tidyr")
-library(tidyr)
+
 summary_subtopic <- summary_subtopic %>% mutate(across(everything(), .fns = ~replace_na(.,0))) #put zeros in for all blank cells
-install.packages("janitor")
-library(janitor)
+
 summary_subtopic <- summary_subtopic %>% clean_names() #rename variable names so easier for later manipulation
 row_names_to_remove<-c("Total") #had to remove total row because it was taking mean including total row
 summary_subtopic_2 <- summary_subtopic[!(row.names(summary_subtopic) %in% row_names_to_remove),] #push to new dataset
 mean_by_subtopic <- summary_subtopic_2 %>% summarise_if(is.numeric, mean) #calculate mean across all columns without total row
 sd_by_subtopic <- summary_subtopic_2 %>% summarise_if(is.numeric, sd) #calculate sd across all rows
+
 #Total <- data.frame(summary_subtopic$total)
 #Total<-as.data.frame(t(Total))
 rownames(mean_by_subtopic) <- ("Mean") #renaming row name
@@ -70,6 +95,7 @@ rownames(sd_by_subtopic) <- ("sd") #renaming row name
 sd_mean_subtopics <- rbind(summary_subtopic, mean_by_subtopic, sd_by_subtopic) #merge the the datasets/vectors
 is.num <- sapply(sd_mean_subtopics, is.numeric) #
 sd_mean_subtopics[is.num] <- lapply(sd_mean_subtopics[is.num], round, 2) #rounding all values in dataset to 2 decimals
+
 #now going to add relevant variables back in like state, school classification, highest degree offered etc.
 reduced_data <- select(ef.data, -c(Course, Department, `Sub-topic`)) #removing columns from dataset
 reduced_data <- distinct(reduced_data, College, .keep_all = TRUE) #this removes all duplicate rows based on college name, so now there should the same number of rows as distinct colleges
@@ -86,7 +112,6 @@ dff <- merge(data.frame(reduced_data, row.names=NULL), data.frame(sd_mean_subtop
              by = 0, all = TRUE)[-1] #merging dataframes to create full dataframe with college data and summarized subtopic data
 data_for_regression <- merge(data.frame(reduced_data, row.names=NULL), data.frame(summary_subtopic_2, row.names=NULL), 
                     by = 0, all = TRUE)[-1] #merge another dataset that is easier to use for the regression/BCLM
-library(tidyverse)
 dff <- dff %>% arrange(College) #arranging rows in alphabetical order by college name 
 
 #Planning out next steps
@@ -94,14 +119,18 @@ dff <- dff %>% arrange(College) #arranging rows in alphabetical order by college
 #Need to calculate a chisq
 #divide data into training and predicting datasets using 
 
-### REGRESSION ###
+#### REGRESSION ####
 
+# Here, you could make the total number and sample size consistent regardless data
+# length by replacing 31 with nrow(data_for_regression)
+# I would also recommend setting seed so we can compare at least for now
+set.seed(10)
 train.index <- sample(31, 31*.5) #creating training data set for BCLM
 train.index
 train.df <- data_for_regression[train.index, ]
-
 valid.df <- data_for_regression[-train.index, ] #validation set for BCLM
-library(nnet)
+
+# I think it would be good to describe what's happening here a little bit like we talked about
 regress.school.type <- multinom(Type ~ basics_of_ecology + basics_of_forecasting + basics_of_statistics + data_visualization + decision_science + ethics + introduction_to_coding + machine_learning + model_assessment
                            + science_communication + statistical_models + uncertainty + workflows_open_science + working_with_data_data_manipulation, data = train.df) #created Baseline categorical logit model (BCLM)
 stepAIC(regress.school.type)

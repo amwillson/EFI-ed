@@ -3,7 +3,7 @@
 #install.packages("tidyr")
 #install.packages("janitor")
 
-# Clearn environment
+# Clear environment
 rm(list = ls())
 
 # Load libraries
@@ -14,6 +14,10 @@ library(tidyr)
 library(janitor)
 library(tidyverse)
 library(nnet)
+library(MASS)
+library(ROCR)
+library(forecast)
+library(caret)
 
 #### Load in data ####
 
@@ -25,9 +29,9 @@ Courses_by_school <- read_excel('Courses_by_school.xlsx', sheet = 'Data (Hayden)
 #### Clean up data ####
 ef.data <- data.frame(Courses_by_school) #push data to dataframe
 # Here you're just printing the dataframe, minus the "College" column
-select(ef.data, -College)
-ef.data <- select(Courses_by_school, -c(URL, Notes)) #remove unnecessary columns of dataset
-ef.data <- select(ef.data, -last_col()) #remove unnecessary columns of dataset
+dplyr::select(ef.data, -College)
+ef.data <- dplyr::select(Courses_by_school, -c(URL, Notes)) #remove unnecessary columns of dataset
+ef.data <- dplyr::select(ef.data, -last_col()) #remove unnecessary columns of dataset
 
 summary(ef.data)
 distinct(ef.data, `Sub-topic`)
@@ -72,6 +76,8 @@ ef.data$`Sub-topic` <- recode(ef.data$`Sub-topic`, #renaming variables so that t
 
 # want to consolidate the dataset by 
 # need to go through dataset and for each unique college name count number of sub-topics and count of each 
+
+# Pivot table summarizing the number of courses in each sub-topic for each institution
 pt <- PivotTable$new() # create pivottable 
 pt$addData(ef.data) #populate with ef.data
 pt$addColumnDataGroups("Sub-topic") #using Sub-Topic data to populate pivottable
@@ -97,8 +103,10 @@ sd_mean_subtopics <- rbind(summary_subtopic, mean_by_subtopic, sd_by_subtopic) #
 is.num <- sapply(sd_mean_subtopics, is.numeric) #
 sd_mean_subtopics[is.num] <- lapply(sd_mean_subtopics[is.num], round, 2) #rounding all values in dataset to 2 decimals
 
+#### Data prep for statistcs ####
+
 #now going to add relevant variables back in like state, school classification, highest degree offered etc.
-reduced_data <- select(ef.data, -c(Course, Department, `Sub-topic`)) #removing columns from dataset
+reduced_data <- dplyr::select(ef.data, -c(Course, Department, `Sub-topic`)) #removing columns from dataset
 reduced_data <- distinct(reduced_data, College, .keep_all = TRUE) #this removes all duplicate rows based on college name, so now there should the same number of rows as distinct colleges
 reduced_data$`Highest degree offered` <- recode(reduced_data$`Highest degree offered`, #recoding variable names so all uniform
                                      `Associates degree` = "Associate's",
@@ -131,10 +139,18 @@ train.index
 train.df <- data_for_regression[train.index, ]
 valid.df <- data_for_regression[-train.index, ] #validation set for BCLM
 
-# I think it would be good to describe what's happening here a little bit like we talked about
+# I think it would be good to describe what's happening 
+# here a little bit like we talked about
+# A good place to start is by reading the documentation of the functions 
+# so you know what the default settings are
 regress.school.type <- multinom(Type ~ basics_of_ecology + basics_of_forecasting + basics_of_statistics + data_visualization + decision_science + ethics + introduction_to_coding + machine_learning + model_assessment
                            + science_communication + statistical_models + uncertainty + workflows_open_science + working_with_data_data_manipulation, data = train.df) #created Baseline categorical logit model (BCLM)
 stepAIC(regress.school.type)
+
+#### Final model ####
+
+# Remember that interpretation is really important here
+# You don't have to write your interpretation in the code but just a reminder
 regress.stepAIC <- multinom(formula = Type ~ basics_of_forecasting + data_visualization + 
            ethics + machine_learning + working_with_data_data_manipulation, 
          data = train.df)
@@ -142,10 +158,8 @@ regress.school.type
 pred.org <- data.frame(predict(regress.school.type, valid.df)) #now predicted the type of schools in the validation data set
 pred.AIC <- data.frame(predict(regress.stepAIC, valid.df))
 summary(pred.org); summary(pred.AIC) #summary of the predictions
-#need to add a line to see how well the prediction was.... like %
-library(ROCR)
-#library(MASS)
-library(forecast)
+
+# need to add a line to see how well the prediction was.... like %
 valid.pred <- predict(regress.school.type, valid.df, type = "response")
 accuracy(pred, valid.df$Type)
 confusionMatrix(as.factor(ifelse(regress.school.type$fitted > 0.5, 1, 0)), as.factor(train.df[,5]))

@@ -75,6 +75,7 @@ ef.data$`Sub-topic` <- recode(ef.data$`Sub-topic`, #renaming variables so that t
 pt <- PivotTable$new() # create pivottable 
 pt$addData(ef.data) #populate with ef.data
 pt$addColumnDataGroups("Sub-topic") #using Sub-Topic data to populate pivottable
+pt$addRowDataGroups("College") #Colleges become rows
 pt$defineCalculation(calculationName="TotalCourses", summariseExpression="n()") #calculating number of courses
 pt$renderPivot() #create pivot table 
 summary_subtopic <- pt$asDataFrame() #pushing pivottable to dataframe for easier use and analysis later
@@ -143,7 +144,7 @@ pred.AIC <- data.frame(predict(regress.stepAIC, valid.df))
 summary(pred.org); summary(pred.AIC) #summary of the predictions
 #need to add a line to see how well the prediction was.... like %
 library(ROCR)
-library(MASS)
+#library(MASS)
 library(forecast)
 valid.pred <- predict(regress.school.type, valid.df, type = "response")
 accuracy(pred, valid.df$Type)
@@ -151,10 +152,11 @@ confusionMatrix(as.factor(ifelse(regress.school.type$fitted > 0.5, 1, 0)), as.fa
 perf <- performance(pred, measure = "tpr", x.measure = "fpr")
 plot(perf, colorize = T)
 abline(a = 1, b = -1)
-library(generalhoslem)
+#library(generalhoslem)
 logitgof(train.df$Type, regress.school.type$fitted.values, g = 5, ord = F) #should do a general hoslem test to determine if the model is an adequate prediction
 mean_by_subtopic <- as.data.frame(t(mean_by_subtopic))
 barplot(mean_by_subtopic, main = Mean)
+
 
 ### PLOTS & VISUALIZATIONS ###
 # What do we want to visualize?

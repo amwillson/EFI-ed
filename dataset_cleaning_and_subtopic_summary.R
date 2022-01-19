@@ -1,4 +1,29 @@
+# load all necessary libraries
+library(plyr)
+library(caret)
 library(dplyr)
+library(basictabler)
+library(flextable)
+library(pivottabler)
+library(tidyr)
+library(janitor)
+library(tidyverse)
+library(nnet)
+library(ROCR)
+library(MASS)
+library(forecast)
+library(generalhoslem)
+library(data.table)
+library(RColorBrewer)
+library(viridis)
+library(readxl)
+library(usmap)
+library(ggplot2)
+library(stringr)
+library(gtsummary)
+
+
+
 ef.data <- data.frame(Courses_by_school) #push data to dataframe
 ef.data <- dplyr::select(Courses_by_school, -c(URL, Notes)) #remove unnecessary columns of dataset
 ef.data <- dplyr::select(ef.data, -last_col()) #remove unnecessary columns of dataset
@@ -47,7 +72,7 @@ ef.data$`Highest degree offered` <- recode(ef.data$`Highest degree offered`, #re
                                                 `Assosciate's` = "Associate's")
 #want to consolidate the dataset by 
 # need to go through dataset and for each unique college name count number of sub-topics and count of each 
-library(pivottabler)
+
 pt <- PivotTable$new() # create pivottable 
 pt$addData(ef.data) #populate with ef.data
 pt$addColumnDataGroups("Sub-topic") #using Sub-Topic data to populate pivottable
@@ -56,9 +81,9 @@ pt$defineCalculation(calculationName="TotalCourses", summariseExpression="n()") 
 pt$renderPivot() #create pivot table 
 summary_subtopic <- pt$asDataFrame() #pushing pivottable to dataframe for easier use and analysis later
 summary_subtopic
-library(tidyr)
+
 summary_subtopic <- summary_subtopic %>% mutate(across(everything(), .fns = ~replace_na(.,0))) #put zeros in for all blank cells
-library(janitor)
+
 summary_subtopic <- summary_subtopic %>% clean_names() #rename variable names so easier for later manipulation
 row_names_to_remove<-c("Total") #had to remove total row because it was taking mean including total row
 summary_subtopic_2 <- summary_subtopic[!(row.names(summary_subtopic) %in% row_names_to_remove),] #push to new dataset
@@ -87,7 +112,7 @@ dff <- merge(data.frame(reduced_data, row.names=NULL), data.frame(sd_mean_subtop
              by = 0, all = TRUE)[-1] #merging dataframes to create full dataframe with college data and summarized subtopic data
 data_for_regression <- merge(data.frame(reduced_data, row.names=NULL), data.frame(summary_subtopic_2, row.names=NULL), 
                     by = 0, all = TRUE)[-1] #merge another dataset that is easier to use for the regression/BCLM
-library(tidyverse)
+
 dff <- dff %>% arrange(College) #arranging rows in alphabetical order by college name 
 
 #Planning out next steps
@@ -97,33 +122,54 @@ dff <- dff %>% arrange(College) #arranging rows in alphabetical order by college
 
 ### REGRESSION ###
 
+set.seed(8)
 train.index <- sample(nrow(data_for_regression), nrow(data_for_regression)*.5) #creating training data set for BCLM
 train.index
 train.df <- data_for_regression[train.index, ]
-
 valid.df <- data_for_regression[-train.index, ] #validation set for BCLM
-library(nnet)
+table(valid.df$Type)
+table(train.df$Type)
+
+
 regress.school.type <- multinom(Type ~ basics_of_ecology + basics_of_forecasting + basics_of_statistics + data_visualization + decision_science + ethics + introduction_to_coding + machine_learning + model_assessment
                            + science_communication + statistical_models + uncertainty + workflows_open_science + working_with_data_data_manipulation, data = train.df) #created Baseline categorical logit model (BCLM)
-stepAIC(regress.school.type)
-regress.stepAIC <- multinom(formula = Type ~ basics_of_forecasting + data_visualization + 
-           ethics + machine_learning + working_with_data_data_manipulation, 
-         data = train.df)
-regress.school.type 
-pred.org <- data.frame(predict(regress.school.type, valid.df)) #now predicted the type of schools in the validation data set
-pred.AIC <- data.frame(predict(regress.stepAIC, valid.df))
-summary(pred.org); summary(pred.AIC) #summary of the predictions
+MASS::stepAIC(regress.school.type)
+regress.stepAIC <- multinom(formula = Type ~ basics_of_forecasting + basics_of_statistics + 
+                              ethics, data = train.df)
+# stepAIC starts with full modeling, then removes variables one at a time to determine model w/ k-1 predictors that has the lowest AIC
+# the best fitting, simplest model will have the lowest AIC
+valid.pred.AIC <- predict(regress.stepAIC, valid.df)
+train.pred.AIC <- predict(regress.stepAIC, train.df)
+valid.pred <- predict(regress.school.type, valid.df)
+train.pred <- predict(regress.school.type, train.df)
+summary(valid.pred.AIC); summary(train.pred.AIC); summary(valid.pred); summary(train.pred)
+
+#table(valid.df$Type); summary(valid.pred)
+#tab <- table(valid.df$Type, valid.pred.AIC)
+#tab.2 <- table(valid.df$Type, valid.pred)
+
+train.df$Type <- as.factor(train.df$Type)
+valid.df$Type <- as.factor(valid.df$Type)
+round((sum(diag(tab.2))/sum(tab.2))*100,2)
+#confusion matrices to compare predicted results to actual Type of institution
+confusionMatrix(train.pred.AIC, train.df$Type)
+confusionMatrix(train.pred, train.df$Type)
+confusionMatrix(valid.pred.AIC, valid.df$Type)
+confusionMatrix(valid.pred, valid.df$Type)
+
+summary(train.pred.AIC)
+summary(valid.pred)
+table(valid.df$Type)
+
+
 #need to add a line to see how well the prediction was.... like %
-library(ROCR)
-#library(MASS)
-library(forecast)
-valid.pred <- predict(regress.school.type, valid.df, type = "response")
+
+
 accuracy(pred, valid.df$Type)
-confusionMatrix(as.factor(ifelse(regress.school.type$fitted > 0.5, 1, 0)), as.factor(train.df[,5]))
 perf <- performance(pred, measure = "tpr", x.measure = "fpr")
 plot(perf, colorize = T)
 abline(a = 1, b = -1)
-library(generalhoslem)
+
 logitgof(train.df$Type, regress.school.type$fitted.values, g = 5, ord = F) #should do a general hoslem test to determine if the model is an adequate prediction
 mean_by_subtopic <- as.data.frame(t(mean_by_subtopic))
 
@@ -157,7 +203,7 @@ chisq.test(chisq.table)
 
 
 ### Bar plot ###
-library(data.table)
+
 colnames <- data.frame(colnames(Total))
 Total <- transpose(Total)
 Total <- cbind(Total, colnames)
@@ -169,11 +215,19 @@ barplot_subtopic_total
 
 
 ### Pie Charts ###
-library(RColorBrewer)
-library(viridis)
+
 color_count <- length(Total$Subtopics)
-coul <- brewer.pal(4, "Reds")
+coul <- brewer.pal(12, "Paired")
 coul <- colorRampPalette(coul)(color_count)
+getPalette = colorRampPalette(brewer.pal(12, "Set3"))
+
+palette3_info <- brewer.pal.info[brewer.pal.info$category == "qual", ]  # Extract color info
+palette3_all <- unlist(mapply(brewer.pal,                     # Create vector with all colors
+                              palette3_info$maxcolors,
+                              rownames(palette3_info)))
+
+set.seed(2643598)                                             # Set random seed
+palette3 <- sample(palette3_all, color_count)                    # Sample color
 
 pie(Total$`Number of Courses`, labels = Total$`Number of Courses`, main = "Pie Chart of Course Distribution", col = rainbow(length(Total$`Number of Courses`))) + legend("topright", Total$Subtopics, cex = 0.8, fill = rainbow(length(Total$`Number of Courses`))) #basic pie chart
 
@@ -181,17 +235,13 @@ ggplot_pie_chart <- ggplot(Total, aes(x="", y=`Number of Courses`, fill=Subtopic
 ggplot_pie_chart + scale_fill_grey(start = 0.1, end = .9)
 ggplot_pie_chart + scale_fill_viridis(discrete = TRUE)
 ggplot_pie_chart + scale_fill_manual(values = coul)
-ggplot_pie_chart  
+ggplot_pie_chart + scale_fill_manual(values = palette3)
 ### pie chart make color changes to make it easier to interpret 
 
 
 ###Map Visualization###
-install.packages('readxl')
-library(readxl)
 College_Locations <- read_excel('College Location Data.xlsx', sheet  = 'College Location Data')
-library(usmap)
-library(ggplot2)
-library(plyr)
+
 course_total <- data.frame(summary_subtopic_2$total)
 transformed_data <- usmap_transform(College_Locations)
 map_locations <- plot_usmap("states") + geom_point(data = transformed_data, aes(x = Longitude.1, y = Latitude.1), color = "red", size = 1)
@@ -216,7 +266,7 @@ college_state <- head(college_state, -3)
 weighted_data_state <- cbind(weighted.data, college_state)
 
 levels(factor(type_weighted_data$sort.df.Type))
-library(stringr)
+
 
 
 region_state <- weighted_data_state %>%
@@ -282,8 +332,7 @@ weighted_data_state <- weighted_data_state %>%
     endsWith(dff.State, "WA") ~ "West",
         ))
 
-#install.packages("gtsummary")
-library(gtsummary)
+
 Region_summary <- weighted_data_state %>% tbl_summary(by = Status)
 Region_summary
 midwest_summary <- data.frame(Region_summary$table_body$stat_1)
@@ -296,62 +345,51 @@ averages_by_region <- averages_by_region %>% slice(69)
 regions <- c('Midwest', 'Northeast', 'South', 'West')
 regions <- data.frame(regions)
 averages_by_region <- transpose(averages_by_region)
-averages_by_region <- cbind(regions, averages_by_region) #lines 210-287 summarized average number of courses per college based on region of country
+averages_by_region <- cbind(regions, averages_by_region) 
+averages_by_region
+#lines 210-287 summarized average number of courses per college based on region of country
 
 #need to create map by 
-
-region <- map_data("region")
-library(plotly)
-library(tidyverse)
-library(tigris)
-library(sf)
-
-# Download state data and filter states
-sts <- states() %>%
-  filter(!STUSPS %in% c('HI', 'AK', 'PR', 'GU', 'VI', 'AS', 'MP'))
-
-# Summarize to DIVISION polygons, see sf::st_union
-div <- sts %>%
-  group_by(DIVISION) %>% 
-  summarize()
-
 # Plot it
-
-state_ISO <- c("US-AL", "US-AK", "US-AZ", "US-AR", "US-CA", "US-CO", "US-CT", "US-DE", "US-FL", "US-GA", "US-HI", "US-ID", "US-IL", "US-IN", "US-IA", "US-KS", "US-KY", "US-LA", "US-ME", "US-MD", "US-MA", "US-MI", "US-MN", "US-MS", "US-MO", "US-MT", "US-NE", "US-NV", "US-NH", "US-NJ", "US-NM", "US-NY", "US-NC", "US-ND", "US-OH", "US-OK", "US-OR", "US-PA", "US-RI", "US-SC", "US-SD", "US-TN", "US-TX", "US-UT", "US-VT", "US-VA", "US-WA", "US-WV", "US-WI", "US-WY", "US-DC")
-state_ISO2 <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY", "DC")
-state_name <- c("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming", "District of Columbia")
-state_name_lower <- c("alabama", "alaska", "arizona", "arkansas", "california", "colorado", "connecticut", "delaware", "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", "massachusetts", "michigan", "minnesota", "mississippi", "missouri", "montana", "nebraska", "nevada", "new hampshire", "new jersey", "new mexico", "new york", "north carolina", "north dakota", "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina", "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", "washington", "west virginia", "wisconsin", "wyoming", "district of columbia")
-type <- c("state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "district")
-regions_census_main <- c("South", "West", "West", "South", "West", "West", "Northeast", "South", "South", "South", "West", "West", "Midwest", "Midwest", "Midwest", "Midwest", "South", "South", "Northeast", "South", "Northeast", "Midwest", "Midwest", "South", "Midwest", "West", "Midwest", "West", "Northeast", "Northeast", "West", "Northeast", "South", "Midwest", "Midwest", "South", "West", "Northeast", "Northeast", "South", "Midwest", "South", "South", "West", "Northeast", "South", "West", "South", "Midwest", "West", "South")
-regions_census_main_value <- c(21, 39, 39, 21, 39, 39, 31, 21, 21, 21, 39, 39, 26, 26, 26, 26, 21, 21, 31, 21, 31, 26, 26, 21, 26, 39, 26, 39, 31, 31, 39, 31, 21, 26, 26, 21, 39, 31, 31, 21, 26, 21, 21, 39, 31, 21, 39, 21, 26, 39, 21)
+# source of code: https://gis.stackexchange.com/questions/403856/how-to-create-a-us-map-in-r-with-separation-between-states-when-using-albersusa
+state_ISO <- c("US-AL", "US-AK", "US-AZ", "US-AR", "US-CA", "US-CO", "US-CT", "US-DE", "US-FL", "US-GA", "US-HI", "US-ID", "US-IL", "US-IN", "US-IA", "US-KS", "US-KY", "US-LA", "US-ME", "US-MD", "US-MA", "US-MI", "US-MN", "US-MS", "US-MO", "US-MT", "US-NE", "US-NV", "US-NH", "US-NJ", "US-NM", "US-NY", "US-NC", "US-ND", "US-OH", "US-OK", "US-OR", "US-PA", "US-RI", "US-SC", "US-SD", "US-TN", "US-TX", "US-UT", "US-VT", "US-VA", "US-WA", "US-WV", "US-WI", "US-WY")
+state_ISO2 <- c("AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY")
+state_name <- c("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado", "Connecticut", "Delaware", "Florida", "Georgia", "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland", "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri", "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey", "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio", "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina", "South Dakota", "Tennessee", "Texas", "Utah", "Vermont", "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming")
+state_name_lower <- c("alabama", "alaska", "arizona", "arkansas", "california", "colorado", "connecticut", "delaware", "florida", "georgia", "hawaii", "idaho", "illinois", "indiana", "iowa", "kansas", "kentucky", "louisiana", "maine", "maryland", "massachusetts", "michigan", "minnesota", "mississippi", "missouri", "montana", "nebraska", "nevada", "new hampshire", "new jersey", "new mexico", "new york", "north carolina", "north dakota", "ohio", "oklahoma", "oregon", "pennsylvania", "rhode island", "south carolina", "south dakota", "tennessee", "texas", "utah", "vermont", "virginia", "washington", "west virginia", "wisconsin", "wyoming")
+type <- c("state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state", "state")
+regions_census_main <- c("South", "West", "West", "South", "West", "West", "Northeast", "South", "South", "South", "West", "West", "Midwest", "Midwest", "Midwest", "Midwest", "South", "South", "Northeast", "South", "Northeast", "Midwest", "Midwest", "South", "Midwest", "West", "Midwest", "West", "Northeast", "Northeast", "West", "Northeast", "South", "Midwest", "Midwest", "South", "West", "Northeast", "Northeast", "South", "Midwest", "South", "South", "West", "Northeast", "South", "West", "South", "Midwest", "West")
+regions_census_main_value <- c(21, 39, 39, 21, 39, 39, 31, 21, 21, 21, 39, 39, 26, 26, 26, 26, 21, 21, 31, 21, 31, 26, 26, 21, 26, 39, 26, 39, 31, 31, 39, 31, 21, 26, 26, 21, 39, 31, 31, 21, 26, 21, 21, 39, 31, 21, 39, 21, 26, 39)
 
 dataus <- as.data.frame(cbind(state_ISO, state_ISO2, state_name, state_name_lower, type,
                               regions_census_main, regions_census_main_value), stringsAsFactors = FALSE)
 
+length(regions_census_main_value)
+length(state_name)
 
+library(plotly)
 g <- list(
   scope = 'usa',
   projection = list(type = 'albers usa'),
   showlakes = TRUE,
-  lakecolor = toRGB('white')
+  lakecolor = plotly::toRGB('white')
 )
+
 
 plot_geo(dataus, locationmode = 'USA-states') %>%
   add_trace(
     z = regions_census_main_value, locations = ~state_ISO2,
-    color = regions_census_main_value, colors = 'Blues'
+    color = regions_census_main_value, colors = "Blues"
   ) %>%
-  colorbar(title = "Regions", data(regions_census_main_value)) %>%
+  colorbar(title = "Average Number of Courses", data(regions_census_main_value), limits = c(20,50)) %>%
   layout(
-    title = 'United States by Regions',
+    title = 'Average Number of Courses by Region', annotations = list(text = "West 39",  x = .22, y = .55,showarrow=FALSE),
     geo = g
   )
+
+### go through code 
 ### add number labels into states, change top color make lighter, add labels
 
 ### Tiered Bar Plot###
-library(basictabler)
-install.packages('flextable')
-library(flextable)
 pt.2 <- PivotTable$new() # create pivottable 
 pt.2$addData(ef.data) #populate with ef.data
 pt.2$addRowDataGroups("Sub-topic")
@@ -446,6 +484,7 @@ average_course_subtopic_degree <- average_course_subtopic_degree %>% mutate(acro
 
   ### Table: Average number of courses by Carnegie Classification
   ###Table by subtopics carnegie 
+#gt package
 
 average_course_carnegie <- PivotTable$new()
 average_course_carnegie$addData(ef.data)
@@ -470,3 +509,33 @@ average_course_carnegie$R2 <- average_course_carnegie$R2/carnegie_count[13,2]
 average_course_carnegie$`Tribal Colleges` <- average_course_carnegie$`Tribal Colleges`/carnegie_count[14,2]
 average_course_carnegie <- average_course_carnegie %>% mutate(across(where(is.numeric), ~ round(., 2)))
 
+
+  ### Table: Average Number of courses by subtopic by carnegie classification
+average_course_subtopic_carnegie <- PivotTable$new()
+average_course_subtopic_carnegie$addData(ef.data)
+average_course_subtopic_carnegie$addColumnDataGroups("Carnegie classification", addTotal = FALSE)
+average_course_subtopic_carnegie$addRowDataGroups("Sub-topic", addTotal = FALSE)
+average_course_subtopic_carnegie$defineCalculation(calculationName = "TotalCourses", summariseExpression = "n()")
+average_course_subtopic_carnegie$renderPivot()
+average_course_subtopic_carnegie <- average_course_subtopic_carnegie$asDataFrame()
+average_course_subtopic_carnegie[is.na(average_course_subtopic_carnegie)] <- 0
+average_course_subtopic_carnegie$`Associate's Colleges: High Career & Technical-High Nontraditional` <- average_course_subtopic_carnegie$`Associate's Colleges: High Career & Technical-High Nontraditional`/carnegie_count[1,2]
+average_course_subtopic_carnegie$`Associate's Colleges: High Career & Technical-High Traditional` <- average_course_subtopic_carnegie$`Associate's Colleges: High Career & Technical-High Traditional`/carnegie_count[2,2]
+average_course_subtopic_carnegie$`Associate's Colleges: Mixed Transfer/Career & Technical-High Nontraditional` <- average_course_subtopic_carnegie$`Associate's Colleges: Mixed Transfer/Career & Technical-High Nontraditional`/carnegie_count[3,2]
+average_course_subtopic_carnegie$`Associate's Colleges: Mixed Transfer/Career & Technical-High Traditional` <- average_course_subtopic_carnegie$`Associate's Colleges: Mixed Transfer/Career & Technical-High Traditional`/carnegie_count[4,2]
+average_course_subtopic_carnegie$`Baccalaureate Colleges: Arts & Sciences Focus` <- average_course_subtopic_carnegie$`Baccalaureate Colleges: Arts & Sciences Focus`/carnegie_count[5,2]
+average_course_subtopic_carnegie$`Baccalaureate Colleges: Diverse Fields` <- average_course_subtopic_carnegie$`Baccalaureate Colleges: Diverse Fields`/carnegie_count[6,2]
+average_course_subtopic_carnegie$`Baccalaureate/Associate's Colleges: Associate's Dominant` <- average_course_subtopic_carnegie$`Baccalaureate/Associate's Colleges: Associate's Dominant`/carnegie_count[7,2]
+average_course_subtopic_carnegie$`Baccalaureate/Associate's Colleges: Mixed Baccalaureate/Associate's` <- average_course_subtopic_carnegie$`Baccalaureate/Associate's Colleges: Mixed Baccalaureate/Associate's`/carnegie_count[8,2]
+average_course_subtopic_carnegie$`D/PU` <- average_course_subtopic_carnegie$`D/PU`/carnegie_count[9,2]
+average_course_subtopic_carnegie$M1 <- average_course_subtopic_carnegie$M1/carnegie_count[10,2]
+average_course_subtopic_carnegie$M3 <- average_course_subtopic_carnegie$M3/carnegie_count[11,2]
+average_course_subtopic_carnegie$R1 <- average_course_subtopic_carnegie$R1/carnegie_count[12,2]
+average_course_subtopic_carnegie$R2 <- average_course_subtopic_carnegie$R2/carnegie_count[13,2]
+average_course_subtopic_carnegie$`Tribal Colleges` <- average_course_subtopic_carnegie$`Tribal Colleges`/carnegie_count[14,2]
+average_course_subtopic_carnegie <- average_course_subtopic_carnegie %>% dplyr::mutate(across(where(is.numeric), ~ round(., 2)))
+
+
+
+
+### work on regression

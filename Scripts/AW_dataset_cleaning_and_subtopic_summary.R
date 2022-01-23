@@ -556,3 +556,4 @@ average_course_carnegie$R2 <- average_course_carnegie$R2/carnegie_count[13,2]
 average_course_carnegie$`Tribal Colleges` <- average_course_carnegie$`Tribal Colleges`/carnegie_count[14,2]
 average_course_carnegie <- average_course_carnegie %>% mutate(across(where(is.numeric), ~ round(., 2)))
 
+save(data, file = 'Data/cleaned_data.RData')

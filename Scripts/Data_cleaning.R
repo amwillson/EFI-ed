@@ -126,4 +126,3 @@ data = data %>%
 # These columns were used during data collection but are not relevant to the analysis
 data = data %>%
   select(-c(URL, Course, Department, Notes, X))
-

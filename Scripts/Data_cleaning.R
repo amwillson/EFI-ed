@@ -17,13 +17,13 @@ unique(data$Sub.topic) # 22 sub-topics
 # Fix institution type classification
 data = data %>%
   mutate(Type = recode(Type, 
-                       '4-year private' = '4-year Private',
-                       '4-year private ' = '4-year Private',
-                       '2-year vocational/technical school' = '2-year Technical',
-                       '2-year vocational/technical' = '2-year Technical',
+                       '4-year private' = '4-Year Private',
+                       '4-year private ' = '4-Year Private',
+                       '2-year vocational/technical school' = '2-Year Technical',
+                       '2-year vocational/technical' = '2-Year Technical',
                        'community college' = 'Community College',
-                       '4-year public' = '4-year Public',
-                       '4-year public ' = '4-year Public',
+                       '4-year public' = '4-Year Public',
+                       '4-year public ' = '4-Year Public',
                        'for profit college' = 'For Profit'))
 
 # Fix highest degree offered classification
@@ -126,3 +126,5 @@ data = data %>%
 # These columns were used during data collection but are not relevant to the analysis
 data = data %>%
   select(-c(URL, Course, Department, Notes, X))
+
+save(data, file = 'Data/cleaned_data.RData')

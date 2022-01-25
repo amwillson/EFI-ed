@@ -12,7 +12,7 @@ unique(data$State) # 27 states
 unique(data$Type) # 5 instituion types
 unique(data$Highest.degree.offered) # 5 highest degree types
 unique(data$Carnegie.classification) # 19 Carnegie Classifications
-unique(data$Sub.topic) # 22 sub-topics
+unique(data$Sub.topic) # 18 sub-topics
 
 # Fix institution type classification
 data = data %>%
@@ -126,5 +126,14 @@ data = data %>%
 # These columns were used during data collection but are not relevant to the analysis
 data = data %>%
   select(-c(URL, Course, Department, Notes, X))
+
+# Change data types
+data$College = as.factor(data$College)
+data$State = as.factor(data$State)
+data$Type = as.factor(data$Type)
+data$Highest.degree.offered = as.factor(data$Highest.degree.offered)
+data$Carnegie.classification = as.factor(data$Carnegie.classification)
+data$Sub.topic = as.factor(data$Sub.topic)
+data$Carnegie.classification.2 = as.factor(data$Carnegie.classification.2)
 
 save(data, file = 'Data/cleaned_data.RData')

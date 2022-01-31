@@ -1,3 +1,8 @@
+## This script cleans the raw data on courses related to ecological forecasting
+
+## Author: AM Willson
+## Date modified: 31 January 2022
+
 rm(list = ls())
 
 # Load libraries

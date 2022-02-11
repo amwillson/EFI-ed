@@ -27,6 +27,7 @@ data = data %>%
 # Correct error in sub-topic
 data = data %>%
   mutate(Sub.topic = recode(Sub.topic,
-                            'Data Manipulation/Processing' = 'Data Manipulation'))
+                            'Data Manipulation/Processing' = 'Data Manipulation',
+                            'Uncertainty' = 'Probability & Uncertainty'))
 
 save(data, file = 'Data/cleaned_data_EF_course.RData')

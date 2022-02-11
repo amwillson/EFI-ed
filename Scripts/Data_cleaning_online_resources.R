@@ -64,8 +64,6 @@ data = data %>%
 # Fix category column
 # Basics of R and Basics of Python are combined to be consistent with course data
 # Uncertainty was changed to Probability & Uncertainty to be consistent with course data
-# State space models were combined with statistical models to be consistent
-# with other curriculum levels
 # Iteration was combined with data assimilation (e.g., iterative data assimilation)
 # to be consistent with other curriculum levels
 # Other changes were purely cosmetic
@@ -83,7 +81,7 @@ data = data %>%
                            'Data visualization tools' = 'Data Visualization',
                            'Statistical models' = 'Statistical Models',
                            'Mechanistic models' = 'Mechanistic Models',
-                           'State space models' = 'Statistical Models',
+                           'State space models' = 'State Space Models',
                            'Uncertainty' = 'Probability & Uncertainty',
                            'Data assimilation' = 'Data Assimilation',
                            'Iteration' = 'Data Assimilation',

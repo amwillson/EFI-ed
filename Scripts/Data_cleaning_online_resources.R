@@ -125,3 +125,5 @@ data = data %>%
                                  'Introductory; Advanced' = 'Intermediate',
                                  'Introducotry' = 'Introductory',
                                  'Introductory, Advanced' = 'Intermediate'))
+
+save(data, file = 'Data/cleaned_data_online.RData')

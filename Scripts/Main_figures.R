@@ -85,9 +85,10 @@ pie_chart_online_resources <- ggplot(EF_online_resources_df, aes(x = "", y = `Nu
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
   guides(fill = guide_legend(ncol = 2, bycol = T)) +
-  labs(title = "Open-access, Online Resources") +
+  labs(title = "Open-access, Online Resources", subtitle = 'n = 227') +
   theme_void() +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5),
         legend.title = element_blank(),
         legend.text = element_text(size = 10))
 p1 = pie_chart_online_resources + 
@@ -177,9 +178,11 @@ pie_chart_EF_courses <- ggplot(EF_course_data_df, aes(x = "", y = `Number of Res
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
   guides(fill = guide_legend(ncol = 2, bycol = T)) +
-  labs(title = "Forecasting Course Lessons") +
+  labs(title = "Forecasting Course Lessons",
+       subtitle = 'n = 129') +
   theme_void() +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5),
         legend.title = element_text(size = 12),
         legend.text = element_text(size = 10))
 p2 = pie_chart_EF_courses + 
@@ -257,9 +260,11 @@ pie_chart_FA_courses <- ggplot(FA_course_data_df, aes(x = "", y = `Number of Res
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
   guides(fill = guide_legend(ncol = 2, bycol = T)) +
-  labs(title = "Forecasting-Adjacent Courses") +
+  labs(title = "Forecasting-Adjacent Courses",
+       subtitle = 'n = 1,485') +
   theme_void() +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
+        plot.subtitle = element_text(size = 12, hjust = 0.5),
         legend.title = element_text(size = 12),
         legend.text = element_text(size = 10))
 p3 = pie_chart_FA_courses + 
@@ -309,7 +314,7 @@ leg = get_legend(p1)
 pg = plot_grid(p1 + theme(legend.position = 'none'),
           p2 + theme(legend.position = 'none'),
           p3 + theme(legend.position = 'none'),
-          nrow = 1, labels = c('A', 'B', 'C'), vjust = 11.4)
+          nrow = 1, labels = c('A', 'B', 'C'), vjust = 10.6)
 
 # Plot with legend
 pg_fin = plot_grid(pg + theme(plot.margin = unit(c(0, 0, -1.5, 0), 'in')),

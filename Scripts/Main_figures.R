@@ -10,6 +10,8 @@ library(tidyverse)
 library(pivottabler)
 library(RColorBrewer)
 library(cowplot)
+library(readxl)
+library(usmap)
 
 #### Figure 3 ####
 
@@ -84,7 +86,7 @@ EF_online_resources_df$Topic = factor(EF_online_resources_df$Topic,
 pie_chart_online_resources <- ggplot(EF_online_resources_df, aes(x = "", y = `Number of Resources`, fill = Topic)) + 
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
-  guides(fill = guide_legend(ncol = 2, bycol = T)) +
+  guides(fill = guide_legend(ncol = 4, bycol = T)) +
   labs(title = "Open-access, Online Resources", subtitle = 'n = 227') +
   theme_void() +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
@@ -327,3 +329,164 @@ ggsave(pg_fin, filename = 'Plots/Figure3_pie.jpeg',
        width = 10.3, height = 7.4, units = 'in')
 
 #### Figure 4 ####
+
+rm(list = ls())
+
+## Forecasting-Adjacent Courses Map ##
+
+# Load in data
+College_Locations <- read_excel('Data/College Location Data.xlsx', sheet  = 'College Location Data Final')
+load("Data/cleaned_data.RData")
+ef.data <- data.frame(data)
+
+# Organize course data
+pt <- PivotTable$new() # create pivottable 
+pt$addData(ef.data) #populate with ef.data
+pt$addColumnDataGroups("Sub.topic") #using Sub-Topic data to populate pivottable
+pt$addRowDataGroups("College")
+pt$defineCalculation(calculationName = "TotalCourses", summariseExpression = "n()") #calculating number of courses
+pt$renderPivot() #create pivot table 
+summary_subtopic <- pt$asDataFrame() #pushing pivottable to dataframe for easier use and analysis later
+
+summary_subtopic <- summary_subtopic %>% 
+  mutate(across(everything(), .fns = ~replace_na(.,0))) #put zeros in for all blank cells
+
+row_names_to_remove <- c("Total") #had to remove total row because it was taking mean including total row
+summary_subtopic_2 <- summary_subtopic[!(row.names(summary_subtopic) %in% row_names_to_remove),] #push to new dataset
+
+reduced_data <- dplyr::select(ef.data, -c(`Sub.topic`)) #removing columns from dataset
+reduced_data <- distinct(reduced_data, College, .keep_all = TRUE) #this removes all duplicate rows based on college name, so now there should the same number of rows as distinct colleges
+
+data_for_regression <- merge(data.frame(reduced_data, row.names=NULL), data.frame(summary_subtopic_2, row.names=NULL), 
+                             by = 0, all = TRUE)[-1] #merge another dataset that is easier to use for the regression/BCLM
+
+course_total <- data.frame(summary_subtopic_2$Total)
+transformed_data <- usmap_transform(College_Locations)
+
+# Make weighted data according to number of courses offered
+weighted.data <- cbind(transformed_data, course_total)
+
+sort.df <- with(data_for_regression,  data_for_regression[order(College) , ])
+Type <- data.frame(sort.df$Type)
+weighted.data <- weighted.data[order(weighted.data$College) , ]
+type_weighted_data <- cbind(weighted.data, Type)
+
+type_weighted_data <-type_weighted_data %>% 
+  dplyr::rename('Total Courses'= summary_subtopic_2.Total, Type = sort.df.Type)
+
+# Unweighted map, locations only
+map_locations <- plot_usmap("states") + 
+  geom_point(data = transformed_data, aes(x = Longitude.1, y = Latitude.1), color = "#177E89", size = 1.2, shape = 8, stroke = 0.9) +
+  ggtitle('Forecasting-Adjacent Courses') +
+  theme(plot.title = element_text(size = 14, hjust = 0.5))
+map_locations
+ggsave(map_locations, filename = 'Plots/map_location_only.jpeg')
+
+# Weighted map with institution type
+map_weighted_data <- plot_usmap("states") + 
+  geom_point(data = type_weighted_data, aes(x = Longitude.1, y = Latitude.1, size = `Total Courses`, color = Type)) +
+  theme(legend.position = "left") + 
+  labs(title = "Forecasting-Adjacent Courses") +
+  scale_color_manual(values = c("#41bbc5", 
+                                "#2c457d", 
+                                "#b2b2f9", 
+                                "#88075f", 
+                                "#3db366")) +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10))
+map_weighted_data
+ggsave(map_weighted_data, filename = 'Plots/map_weighted_inst.jpeg')
+
+# Weighted map without institution type
+map_weighted_noinst <- plot_usmap("states") + 
+  geom_point(data = type_weighted_data, aes(x = Longitude.1, y = Latitude.1, size = `Total Courses`), color = '#197d89', alpha = 0.8) +
+  theme(legend.position = "left") + 
+  labs(title = "Forecasting-Adjacent Courses") +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10))
+map_weighted_noinst
+ggsave(map_weighted_noinst, filename = 'Plots/map_weighted_noinst.jpeg')
+
+## Forecasting Courses Map ##
+
+# Load in data
+load('Data/cleaned_data_EF_course.RData')
+EF_courses = data
+EF_course_location <- read_excel('Data/College Location Data.xlsx', sheet = 'EF Courses')
+
+EF_location_transformed <- usmap_transform(EF_course_location)
+
+# Unweighted map, location only
+EF_location <- plot_usmap('states') +
+  geom_point(data = EF_location_transformed, aes(x = Longitude.1, y = Latitude.1), color = '#4fdf96', size = 2, shape = 4, stroke = 1.2) +
+  ggtitle('Forecasting Courses') +
+  theme(plot.title = element_text(size = 14, hjust = 0.5))
+EF_location
+ggsave(EF_location, filename = 'Plots/map_location_only_EF.jpeg')
+
+# Unweighted map with institution type
+EF_location_visual <- plot_usmap("states") + 
+  geom_point(data = EF_location_transformed, aes(x = Longitude.1, y = Latitude.1, color = Type), shape = 4, size = 2, stroke = 1.2) + 
+  labs(title = "Forecasting Courses") + 
+  scale_color_manual(values = c("#41bbc5", 
+                                "#2c457d", 
+                                "#b2b2f9", 
+                                "#88075f", 
+                                "#3db366")) +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10),
+        legend.position = c(1, 0.5))
+EF_location_visual
+ggsave(EF_location_visual, filename = 'Plots/map_EF_inst.jpeg',
+       width = 11, height = 6, units = 'in')
+
+# Prepare dataframe to merge forecasting and forecasting-adjacent
+transformed_type = cbind(transformed_data, Type)
+transformed_type = cbind(transformed_type, rep('Forecasting-Adjacent', nrow(transformed_type)))
+colnames(transformed_type)[8] = 'Curriculum Level'
+colnames(transformed_type)[7] = 'Type'
+
+# Prepare dataframe to merge forecasting and forecasting-adjacent
+EF_location_transformed = cbind(EF_location_transformed, rep('Forecasting', nrow(EF_location_transformed)))
+colnames(EF_location_transformed)[8] = 'Curriculum Level'
+
+full_transformed = transformed_type %>%
+  full_join(EF_location_transformed) %>%
+  mutate(Type = recode(Type, 
+                       '4-year private' = '4-Year Private',
+                       '4-year public' = '4-Year Public'))
+
+# Unweighted map with no institution type, both curriculum levels
+both_location <- plot_usmap('states') +
+  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = `Curriculum Level`, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1) +
+  labs(title = 'Forecasting and Forecasting-Adjacent Courses') +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10),
+        legend.position = c(0.9, 0.5)) +
+  scale_color_manual(values = c('Forecasting-Adjacent' = '#177E89', 'Forecasting' = '4fdf96')) +
+  scale_size_manual(values = c('Forecasting-Adjacent' = 1.4, 'Forecasting' = 2.2)) +
+  scale_shape_manual(values = c('Forecasting-Adjacent' = 8, 'Forecasting' = 4))
+both_location
+ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg')
+
+# Unweighted map with institution type, both curriculum levels
+both_location_inst <- plot_usmap('states') +
+  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = Type, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1) +
+  labs(title = 'Forecasting and Forecasting-Adjacent Courses') +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10),
+        legend.position = c(0.95, 0.4)) +
+  scale_color_manual(values = c("#41bbc5", 
+                                "#2c457d", 
+                                "#b2b2f9", 
+                                "#88075f", 
+                                "#3db366")) +
+  scale_size_manual(values = c('Forecasting-Adjacent' = 1.4, 'Forecasting' = 2.4)) +
+  scale_shape_manual(values = c('Forecasting-Adjacent' = 8, 'Forecasting' = 1))
+both_location_inst
+ggsave(both_location_inst, filename = 'Plots/both_location_inst.jpeg')

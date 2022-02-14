@@ -443,6 +443,8 @@ EF_location_visual
 ggsave(EF_location_visual, filename = 'Plots/map_EF_inst.jpeg',
        width = 11, height = 6, units = 'in')
 
+## Plot together ##
+
 # Prepare dataframe to merge forecasting and forecasting-adjacent
 transformed_type = cbind(transformed_data, Type)
 transformed_type = cbind(transformed_type, rep('Forecasting-Adjacent', nrow(transformed_type)))
@@ -461,21 +463,22 @@ full_transformed = transformed_type %>%
 
 # Unweighted map with no institution type, both curriculum levels
 both_location <- plot_usmap('states') +
-  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = `Curriculum Level`, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1) +
+  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = `Curriculum Level`, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1.4) +
   labs(title = 'Forecasting and Forecasting-Adjacent Courses') +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         legend.title = element_text(size = 12, hjust = 0.5),
         legend.text = element_text(size = 10),
         legend.position = c(0.9, 0.5)) +
-  scale_color_manual(values = c('Forecasting-Adjacent' = '#177E89', 'Forecasting' = '4fdf96')) +
-  scale_size_manual(values = c('Forecasting-Adjacent' = 1.4, 'Forecasting' = 2.2)) +
-  scale_shape_manual(values = c('Forecasting-Adjacent' = 8, 'Forecasting' = 4))
+  scale_color_manual(values = c('Forecasting' = '#177E89', 'Forecasting-Adjacent' = '#72e5ef')) +
+  scale_size_manual(values = c('Forecasting' = 2.5, 'Forecasting-Adjacent' = 2.5)) +
+  scale_shape_manual(values = c('Forecasting' = 4, 'Forecasting-Adjacent' = 16))
 both_location
-ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg')
+ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg', 
+       width = 10, height = 6, units = 'in')
 
 # Unweighted map with institution type, both curriculum levels
 both_location_inst <- plot_usmap('states') +
-  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = Type, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1) +
+  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = Type, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1.4) +
   labs(title = 'Forecasting and Forecasting-Adjacent Courses') +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         legend.title = element_text(size = 12, hjust = 0.5),
@@ -486,7 +489,7 @@ both_location_inst <- plot_usmap('states') +
                                 "#b2b2f9", 
                                 "#88075f", 
                                 "#3db366")) +
-  scale_size_manual(values = c('Forecasting-Adjacent' = 1.4, 'Forecasting' = 2.4)) +
-  scale_shape_manual(values = c('Forecasting-Adjacent' = 8, 'Forecasting' = 1))
+  scale_size_manual(values = c('Forecasting-Adjacent' = 2.5, 'Forecasting' = 2.5)) +
+  scale_shape_manual(values = c('Forecasting-Adjacent' = 16, 'Forecasting' = 4))
 both_location_inst
 ggsave(both_location_inst, filename = 'Plots/both_location_inst.jpeg')

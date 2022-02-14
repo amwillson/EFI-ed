@@ -54,7 +54,7 @@ p1 = EF_data_count %>%
   theme_linedraw() +
   labs(fill = 'Carnegie') +
   ggtitle('Forecasting Courses') +
-  xlab('') + ylab('Courses Per Institution') +
+  xlab('') + ylab('Lessons Per Institution') +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         legend.title = element_text(size = 12, hjust = 0.5),
         legend.text = element_text(size = 10),

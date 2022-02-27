@@ -37,7 +37,7 @@ EF_data %>%
   coord_flip() +
   theme_linedraw() +
   xlab('') + ylab('Number of Lessons') +
-  labs(fill = 'Carnegie') +
+  labs(fill = '') +
   ggtitle('Undergraduate Forecasting Courses') +
   theme(plot.title = element_text(size = 14, hjust = 0.4),
         legend.title = element_text(size = 12, hjust = 0.5),

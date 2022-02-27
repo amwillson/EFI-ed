@@ -28,7 +28,7 @@ rm(data)
 # Find total number of instances each topic was covered across courses
 EF_online_resources_df = online_data %>%
   group_by(Category) %>%
-  summarize(n())
+  dplyr::summarize(n())
 colnames(EF_online_resources_df) = c('Topic', 'Number of Resources')
 EF_online_resources_df$Topic = as.character(EF_online_resources_df$Topic)
 
@@ -44,41 +44,25 @@ barplot_online_resources <- ggplot(EF_online_resources_df, aes(x = reorder(Topic
         axis.text = element_text(size = 10))
 barplot_online_resources
 
-# Pie Chart
-# Palette
-#pal1 = c("#56ebd3", "#4f28af", "#5cb206", "#8a3454", "#99def9", 
-#        "#2f4b4e", "#bfcd8e", "#30408d", "#c6c0fe", "#157a48", 
-#        "#fd4e8b", "#2cf52b", "#b163d2", "#2e9cbc", "#dc3c07", 
-#        "#f1d438", "#2580fe", "#fea53b")
-#pal2 = c(#"#72e5ef", 
-#        "#56ebd3", "#274c56", "#abd28d", "#6c218e", "#56c23d", 
-#        "#e21c7a", "#1e7b20", "#ca50d3", "#3a91fb", "#584982", 
-#        "#d0d2f0", "#2a2bf0", "#c0d122", "#873c1a", "#f6a0ba", 
-#        "#d11f0b", "#5d99aa", "#ee983a")
-#pal3 = c("#75eab6", "#9d222e", "#b1e632", "#4c3e76", "#adb5f0", 
-#        "#7a2f9b", "#00d618", "#ff3eb6", "#56a221", "#b32df9", 
-#        "#b1bf81", "#0b5313", "#f597fa", "#1c4c5e", "#14bae1", 
-#        "#6b3929", "#faa38c", "#ff1c5d")
-
-# Make ordered factor so pie slieces are in order
-EF_online_resources_df$Topic = factor(EF_online_resources_df$Topic,
+# Make ordered factor so pie slices are in order
+EF_online_resources_df$Topic = factor(EF_online_resources_df$Topic, 
                                       levels = c('Basics of Forecasting',
-                                                 'Workflows & Open Science',
                                                  'Statistical Models',
-                                                 'Basics of Ecology',
-                                                 'Decision Science',
+                                                 'Workflows & Open Science',
                                                  'Probability & Uncertainty',
-                                                 'Basics of Statistics',
-                                                 'Data Assimilation',
-                                                 'Model Assessment',
-                                                 'Working with Data',
-                                                 'Basics of Coding',
                                                  'State Space Models',
-                                                 #'Ethics',
+                                                 'Decision Science',
+                                                 'Data Assimilation',
+                                                 'Basics of Statistics',
+                                                 'Basics of Ecology',
+                                                 'Working with Data',
+                                                 'Model Assessment',
+                                                 'Basics of Coding',
+                                                 'Ethics',
                                                  'Mechanistic Models',
-                                                 'Data Manipulation',
-                                                 'Data Sources',
                                                  'Machine Learning',
+                                                 'Data Sources',
+                                                 'Data Manipulation',
                                                  'Data Visualization',
                                                  'Science Communication',
                                                  'Traditional Ecological Knowledge'))
@@ -95,22 +79,22 @@ pie_chart_online_resources <- ggplot(EF_online_resources_df, aes(x = "", y = `Nu
         legend.text = element_text(size = 10))
 p1 = pie_chart_online_resources + 
   scale_fill_manual(values = c('Basics of Forecasting' = "#56ebd3",
-                               'Workflows & Open Science' = "#274c56",
-                               'Statistical Models' = "#abd28d",
-                               'Basics of Ecology' = "#6c218e",
-                               'Decision Science' = "#56c23d", 
-                               'Probability & Uncertainty' = "#e21c7a",
-                               'Basics of Statistics' = "#1e7b20",
-                               'Data Assimilation' = "#ca50d3",
-                               'Model Assessment' = "#3a91fb",
+                               'Statistical Models' = "#274c56",
+                               'Workflows & Open Science' = "#abd28d",
+                               'Probability & Uncertainty' = "#6c218e",
+                               'State Space Models' = "#56c23d", 
+                               'Decision Science' = "#e21c7a",
+                               'Data Assimilation' = "#1e7b20",
+                               'Basics of Statistics' = "#ca50d3",
+                               'Basics of Ecology' = "#3a91fb",
                                'Working with Data' = "#584982", 
-                               'Basics of Coding' = "#d0d2f0",
-                               'State Space Models' = "#2a2bf0",
+                               'Model Assessment' = "#d0d2f0",
+                               'Basics of Coding' = "#2a2bf0",
                                'Ethics' = "#c0d122",
                                'Mechanistic Models' = "#873c1a",
-                               'Data Manipulation' = "#f6a0ba", 
+                               'Machine Learning' = "#f6a0ba", 
                                'Data Sources' = "#d11f0b",
-                               'Machine Learning' = "#5d99aa",
+                               'Data Manipulation' = "#5d99aa",
                                'Data Visualization' = '#F0EAD6',
                                'Science Communication' = "#ee983a",
                                'Traditional Ecological Knowledge' = "#000000"))
@@ -126,7 +110,7 @@ rm(data)
 # Find total number of instances each topic was covered across courses
 EF_course_data_df = ef_course_data %>%
   group_by(Sub.topic) %>%
-  summarize(n())
+  dplyr::summarize(n())
 colnames(EF_course_data_df) = c('Topic', 'Number of Resources')
 
 # Barplot
@@ -141,47 +125,35 @@ barplot_EF_courses <- ggplot(EF_course_data_df, aes(x = reorder(Topic, `Number o
         axis.text = element_text(size = 10))
 barplot_EF_courses
 
-# Make ordered factor to order topics
-ordered = EF_course_data_df %>%
-  arrange(desc(`Number of Resources`))
-ordered$Topic = factor(ordered$Topic, levels = ordered$Topic)
-ordered = rbind(ordered, NA)
-ordered$Topic = as.character(ordered$Topic)
-ordered[18, 1] = 'Science Communication'
-ordered[18, 2] = 0
-ordered = rbind(ordered, NA)
-ordered[19, 1] = 'Traditional Ecological Knowledge'
-ordered[19, 2] = 0
-ordered$Topic = as.factor(ordered$Topic)
-
 EF_course_data_df$Topic = factor(EF_course_data_df$Topic, 
                                  levels = c('Basics of Forecasting',
-                                                     'Workflows & Open Science',
-                                                     'Statistical Models',
-                                                     'Basics of Ecology',
-                                                     'Decision Science',
-                                                     'Probability & Uncertainty',
-                                                     'Basics of Statistics',
-                                                     'Data Assimilation',
-                                                     'Model Assessment',
-                                                     'Working with Data',
-                                                     'Basics of Coding',
-                                                     'State Space Models',
-                                                     #'Ethics',
-                                                     'Mechanistic Models',
-                                                     'Data Manipulation',
-                                                     'Data Sources',
-                                                     'Machine Learning'))
-                                                     #'Data Visualization',
-                                                     #'Science Communication',
-                                                     #'Traditional Ecological Knowledge'))
+                                            'Statistical Models',
+                                            'Workflows & Open Science',
+                                            'Probability & Uncertainty',
+                                            'State Space Models',
+                                            'Decision Science',
+                                            'Data Assimilation',
+                                            'Basics of Statistics',
+                                            'Basics of Ecology',
+                                            'Working with Data',
+                                            'Model Assessment',
+                                            'Basics of Coding',
+                                            'Ethics',
+                                            'Mechanistic Models',
+                                            'Machine Learning',
+                                            'Data Sources',
+                                            'Data Manipulation'))
+                                            #'Ethics'))
+                                            #'Data Visualization',
+                                            #'Science Communication',
+                                            #'Traditional Ecological Knowledge'))
 
 pie_chart_EF_courses <- ggplot(EF_course_data_df, aes(x = "", y = `Number of Resources`, fill = Topic)) + 
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
   guides(fill = guide_legend(ncol = 2, bycol = T)) +
   labs(title = "Forecasting Course Lessons",
-       subtitle = 'n = 129') +
+       subtitle = 'n = 159') +
   theme_void() +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
@@ -189,22 +161,22 @@ pie_chart_EF_courses <- ggplot(EF_course_data_df, aes(x = "", y = `Number of Res
         legend.text = element_text(size = 10))
 p2 = pie_chart_EF_courses + 
   scale_fill_manual(values = c('Basics of Forecasting' = "#56ebd3",
-                               'Workflows & Open Science' = "#274c56",
-                               'Statistical Models' = "#abd28d",
-                               'Basics of Ecology' = "#6c218e",
-                               'Decision Science' = "#56c23d", 
-                               'Probability & Uncertainty' = "#e21c7a",
-                               'Basics of Statistics' = "#1e7b20",
-                               'Data Assimilation' = "#ca50d3",
-                               'Model Assessment' = "#3a91fb",
+                               'Statistical Models' = "#274c56",
+                               'Workflows & Open Science' = "#abd28d",
+                               'Probability & Uncertainty' = "#6c218e",
+                               'State Space Models' = "#56c23d", 
+                               'Decision Science' = "#e21c7a",
+                               'Data Assimilation' = "#1e7b20",
+                               'Basics of Statistics' = "#ca50d3",
+                               'Basics of Ecology' = "#3a91fb",
                                'Working with Data' = "#584982", 
-                               'Basics of Coding' = "#d0d2f0",
-                               'State Space Models' = "#2a2bf0",
+                               'Model Assessment' = "#d0d2f0",
+                               'Basics of Coding' = "#2a2bf0",
                                'Ethics' = "#c0d122",
                                'Mechanistic Models' = "#873c1a",
-                               'Data Manipulation' = "#f6a0ba", 
+                               'Machine Learning' = "#f6a0ba", 
                                'Data Sources' = "#d11f0b",
-                               'Machine Learning' = "#5d99aa",
+                               'Data Manipulation' = "#5d99aa",
                                'Data Visualization' = '#F0EAD6',
                                'Science Communication' = "#ee983a",
                                'Traditional Ecological Knowledge' = "#000000"))
@@ -220,7 +192,7 @@ rm(data)
 # Find total number of instances each topic was covered across courses
 FA_course_data_df = course_data %>%
   group_by(Sub.topic) %>%
-  summarize(n())
+  dplyr::summarize(n())
 colnames(FA_course_data_df) = c('Topic', 'Number of Resources')
 
 # Barplot
@@ -238,22 +210,22 @@ barplot_FA_courses
 # Make ordered factor so pie slieces are in order
 FA_course_data_df$Topic = factor(FA_course_data_df$Topic, 
                                  levels = c('Basics of Forecasting',
-                                            'Workflows & Open Science',
                                             'Statistical Models',
-                                            'Basics of Ecology',
-                                            'Decision Science',
+                                            'Workflows & Open Science',
                                             'Probability & Uncertainty',
-                                            'Basics of Statistics',
-                                            #'Data Assimilation',
-                                            'Model Assessment',
-                                            'Working with Data',
-                                            'Basics of Coding',
                                             #'State Space Models',
+                                            'Decision Science',
+                                            #'Data Assimilation',
+                                            'Basics of Statistics',
+                                            'Basics of Ecology',
+                                            'Working with Data',
+                                            'Model Assessment',
+                                            'Basics of Coding',
                                             'Ethics',
                                             'Mechanistic Models',
-                                            'Data Manipulation',
-                                            'Data Sources',
                                             'Machine Learning',
+                                            'Data Sources',
+                                            'Data Manipulation',
                                             'Data Visualization',
                                             'Science Communication',
                                             'Traditional Ecological Knowledge'))
@@ -271,22 +243,22 @@ pie_chart_FA_courses <- ggplot(FA_course_data_df, aes(x = "", y = `Number of Res
         legend.text = element_text(size = 10))
 p3 = pie_chart_FA_courses + 
   scale_fill_manual(values = c('Basics of Forecasting' = "#56ebd3",
-                               'Workflows & Open Science' = "#274c56",
-                               'Statistical Models' = "#abd28d",
-                               'Basics of Ecology' = "#6c218e",
-                               'Decision Science' = "#56c23d", 
-                               'Probability & Uncertainty' = "#e21c7a",
-                               'Basics of Statistics' = "#1e7b20",
-                               'Data Assimilation' = "#ca50d3",
-                               'Model Assessment' = "#3a91fb",
+                               'Statistical Models' = "#274c56",
+                               'Workflows & Open Science' = "#abd28d",
+                               'Probability & Uncertainty' = "#6c218e",
+                               'State Space Models' = "#56c23d", 
+                               'Decision Science' = "#e21c7a",
+                               'Data Assimilation' = "#1e7b20",
+                               'Basics of Statistics' = "#ca50d3",
+                               'Basics of Ecology' = "#3a91fb",
                                'Working with Data' = "#584982", 
-                               'Basics of Coding' = "#d0d2f0",
-                               'State Space Models' = "#2a2bf0",
+                               'Model Assessment' = "#d0d2f0",
+                               'Basics of Coding' = "#2a2bf0",
                                'Ethics' = "#c0d122",
                                'Mechanistic Models' = "#873c1a",
-                               'Data Manipulation' = "#f6a0ba", 
+                               'Machine Learning' = "#f6a0ba", 
                                'Data Sources' = "#d11f0b",
-                               'Machine Learning' = "#5d99aa",
+                               'Data Manipulation' = "#5d99aa",
                                'Data Visualization' = '#F0EAD6',
                                'Science Communication' = "#ee983a",
                                'Traditional Ecological Knowledge' = "#000000"))
@@ -329,6 +301,137 @@ ggsave(pg_fin, filename = 'Plots/Figure3_pie.jpeg',
        width = 10.3, height = 7.4, units = 'in')
 
 #### Figure 4 ####
+
+rm(list = ls())
+
+# Load data
+load('Data/cleaned_data_EF_course.RData')
+EF_data = data
+load('Data/cleaned_data.RData')
+course_data = data
+rm(data)
+
+## Forecasting Course by Institution Type ##
+
+B_count = 1 # number of baccalaureate schools
+R1_count = 4 # number of R1 schools
+
+EF_data = EF_data %>%
+  filter(Carnegie.Classification.2 != 'NA') %>%
+  mutate(Carnegie.Classification.2 = as.factor(Carnegie.Classification.2))
+
+EF_data_count = EF_data %>%
+  group_by(Sub.topic, Carnegie.Classification.2) %>%
+  dplyr::count()
+
+EF_data_count = EF_data_count %>%
+  mutate(n_stan = if_else(Carnegie.Classification.2 == 'B', n / B_count, n / R1_count))
+
+EF_data_count$Sub.topic = factor(EF_data_count$Sub.topic,
+                                 levels = c('Basics of Forecasting',
+                                            'Workflows & Open Science',
+                                            'Statistical Models',
+                                            'Basics of Ecology',
+                                            'Probability & Uncertainty',
+                                            'Basics of Statistics',
+                                            'Working with Data',
+                                            'State Space Models',
+                                            'Data Assimilation',
+                                            'Decision Science',
+                                            'Basics of Coding',
+                                            'Model Assessment',
+                                            'Mechanistic Models',
+                                            'Data Sources',
+                                            'Ethics',
+                                            'Data Manipulation'))
+
+p1 = EF_data_count %>%  
+  ggplot(aes(x = fct_rev(Sub.topic), y = n_stan, fill = Carnegie.Classification.2)) +
+  geom_bar(stat = 'identity') +
+  coord_flip() +
+  theme_linedraw() +
+  labs(fill = 'Carnegie') +
+  ggtitle('Forecasting Courses') +
+  xlab('') + ylab('Lessons Per Institution') +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10)) +
+  scale_fill_manual(values = c('B' = '#c7e9b4', 'R1' = '#225ea8'))
+
+## Forecasting-Adjacent Course by Institution Type ##
+
+course_count = course_data %>%
+  distinct(College, Carnegie.classification.2) %>%
+  group_by(Carnegie.classification.2) %>%
+  dplyr::count()
+
+course_data_count = course_data %>%
+  group_by(Sub.topic, Carnegie.classification.2) %>%
+  dplyr::count()
+
+course_data_count = course_data_count %>%
+  mutate(n_stan = case_when(Carnegie.classification.2 == 'A' ~ n / 18,
+                            Carnegie.classification.2 == 'A/B' ~ n / 2,
+                            Carnegie.classification.2 == 'B' ~ n / 6,
+                            Carnegie.classification.2 == 'D/PU' ~ n / 5,
+                            Carnegie.classification.2 == 'M1' ~ n / 5,
+                            Carnegie.classification.2 == 'M3' ~ n / 3,
+                            Carnegie.classification.2 == 'R1' ~ n / 2,
+                            Carnegie.classification.2 == 'R2' ~ n / 5,
+                            Carnegie.classification.2 == 'TC' ~ n / 2))
+
+course_data_count$Sub.topic = factor(course_data_count$Sub.topic,
+                                     levels = c('Basics of Ecology',
+                                                'Basics of Statistics',
+                                                'Basics of Coding',
+                                                'Statistical Models',
+                                                'Data Sources',
+                                                'Working with Data',
+                                                'Science Communication',
+                                                'Data Manipulation',
+                                                'Ethics',
+                                                'Mechanistic Models',
+                                                'Basics of Forecasting',
+                                                'Machine Learning',
+                                                'Probability & Uncertainty',
+                                                'Data Visualization',
+                                                'Decision Science',
+                                                'Workflows & Open Science',
+                                                'Traditional Ecological Knowledge',
+                                                'Model Assessment'))
+p2 = course_data_count %>%
+  ggplot(aes(x = fct_rev(Sub.topic), y = n_stan, fill = Carnegie.classification.2)) +
+  geom_bar(stat = 'identity') +
+  coord_flip() +
+  theme_linedraw() +
+  xlab('') + ylab('Courses per Institution') +
+  ggtitle('Forecasting-Adjacent Courses') +
+  labs(fill = '') +
+  theme(plot.title = element_text(size = 14, hjust = 0.5),
+        legend.title = element_text(size = 12, hjust = 0.5),
+        legend.text = element_text(size = 10),
+        axis.title = element_text(size = 12),
+        axis.text = element_text(size = 10)) +
+  scale_fill_manual(values = c('#ffffd9',
+                               '#edf8b1',
+                               '#c7e9b4',
+                               '#7fcdbb',
+                               '#41b6c4',
+                               '#1d91c0',
+                               '#225ea8',
+                               '#253494',
+                               '#081d58'))
+
+pg = plot_grid(p1 + theme(legend.position = 'none'), p2, 
+               nrow = 1, rel_widths = c(0.5, 0.65),
+               labels = c('A', 'B'))
+pg
+ggsave(pg, filename = 'Plots/barplot_carnegie_subtopic.jpeg', 
+       width = 12, height = 6, units = 'in')
+
+#### Figure 5 ####
 
 rm(list = ls())
 

@@ -28,6 +28,7 @@ data = data %>%
 data = data %>%
   mutate(Sub.topic = recode(Sub.topic,
                             'Data Manipulation/Processing' = 'Data Manipulation',
-                            'Uncertainty' = 'Probability & Uncertainty'))
+                            'Uncertainty' = 'Probability & Uncertainty',
+                            'Basic  of Forecasting' = 'Basics of Forecasting'))
 
 save(data, file = 'Data/cleaned_data_EF_course.RData')

@@ -76,7 +76,7 @@ pie_chart_online_resources <- ggplot(EF_online_resources_df, aes(x = "", y = `Nu
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
         legend.title = element_blank(),
-        legend.text = element_text(size = 10))
+        legend.text = element_text(size = 12))
 p1 = pie_chart_online_resources + 
   scale_fill_manual(values = c('Basics of Forecasting' = "#56ebd3",
                                'Statistical Models' = "#274c56",
@@ -158,7 +158,7 @@ pie_chart_EF_courses <- ggplot(EF_course_data_df, aes(x = "", y = `Number of Res
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
         legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10))
+        legend.text = element_text(size = 12))
 p2 = pie_chart_EF_courses + 
   scale_fill_manual(values = c('Basics of Forecasting' = "#56ebd3",
                                'Statistical Models' = "#274c56",
@@ -240,7 +240,7 @@ pie_chart_FA_courses <- ggplot(FA_course_data_df, aes(x = "", y = `Number of Res
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
         legend.title = element_text(size = 12),
-        legend.text = element_text(size = 10))
+        legend.text = element_text(size = 12))
 p3 = pie_chart_FA_courses + 
   scale_fill_manual(values = c('Basics of Forecasting' = "#56ebd3",
                                'Statistical Models' = "#274c56",
@@ -313,8 +313,8 @@ rm(data)
 
 ## Forecasting Course by Institution Type ##
 
-B_count = 1 # number of baccalaureate schools
-R1_count = 4 # number of R1 schools
+B_count = 1 # number of baccalaureate school courses
+R1_count = 5 # number of R1 school courses
 
 EF_data = EF_data %>%
   filter(Carnegie.Classification.2 != 'NA') %>%
@@ -358,7 +358,7 @@ p1 = EF_data_count %>%
         legend.text = element_text(size = 10),
         axis.title = element_text(size = 12),
         axis.text = element_text(size = 10)) +
-  scale_fill_manual(values = c('B' = '#c7e9b4', 'R1' = '#225ea8'))
+  scale_fill_manual(values = c('B' = '#dfc27d', 'R1' = '#35978f'))
 
 ## Forecasting-Adjacent Course by Institution Type ##
 
@@ -401,6 +401,11 @@ course_data_count$Sub.topic = factor(course_data_count$Sub.topic,
                                                 'Workflows & Open Science',
                                                 'Traditional Ecological Knowledge',
                                                 'Model Assessment'))
+
+course_data_count$Carnegie.classification.2 = factor(course_data_count$Carnegie.classification.2,
+                                                     levels = c('A', 'A/B', 'B', 'M3', 'M1', 'D/PU', 
+                                                                'R2', 'R1', 'TC'))
+
 p2 = course_data_count %>%
   ggplot(aes(x = fct_rev(Sub.topic), y = n_stan, fill = Carnegie.classification.2)) +
   geom_bar(stat = 'identity') +
@@ -414,15 +419,15 @@ p2 = course_data_count %>%
         legend.text = element_text(size = 10),
         axis.title = element_text(size = 12),
         axis.text = element_text(size = 10)) +
-  scale_fill_manual(values = c('#ffffd9',
-                               '#edf8b1',
-                               '#c7e9b4',
-                               '#7fcdbb',
-                               '#41b6c4',
-                               '#1d91c0',
-                               '#225ea8',
-                               '#253494',
-                               '#081d58'))
+  scale_fill_manual(values = c('#8c510a',
+                               '#bf812d',
+                               '#dfc27d',
+                               '#f6e8c3',
+                               '#f5f5f5',
+                               '#c7eae5',
+                               '#80cdc1',
+                               '#35978f',
+                               '#01665e'))
 
 pg = plot_grid(p1 + theme(legend.position = 'none'), p2, 
                nrow = 1, rel_widths = c(0.5, 0.65),
@@ -568,16 +573,16 @@ full_transformed = transformed_type %>%
 both_location <- plot_usmap('states') +
   geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = `Curriculum Level`, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1.4) +
   labs(title = 'Forecasting and Forecasting-Adjacent Courses') +
-  theme(plot.title = element_text(size = 14, hjust = 0.5),
-        legend.title = element_text(size = 12, hjust = 0.5),
-        legend.text = element_text(size = 10),
+  theme(plot.title = element_text(size = 16, hjust = 0.5),
+        legend.title = element_text(size = 14, hjust = 0.5),
+        legend.text = element_text(size = 12),
         legend.position = c(0.9, 0.5)) +
   scale_color_manual(values = c('Forecasting' = '#177E89', 'Forecasting-Adjacent' = '#72e5ef')) +
-  scale_size_manual(values = c('Forecasting' = 2.5, 'Forecasting-Adjacent' = 2.5)) +
-  scale_shape_manual(values = c('Forecasting' = 4, 'Forecasting-Adjacent' = 16))
+  scale_size_manual(values = c('Forecasting' = 3, 'Forecasting-Adjacent' = 3)) +
+  scale_shape_manual(values = c('Forecasting' = 17, 'Forecasting-Adjacent' = 16))
 both_location
-ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg', 
-       width = 10, height = 6, units = 'in')
+ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg'), 
+       width = 11.9, height = 6, units = 'in')
 
 # Unweighted map with institution type, both curriculum levels
 both_location_inst <- plot_usmap('states') +

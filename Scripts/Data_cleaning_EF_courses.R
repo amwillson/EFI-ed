@@ -1,7 +1,7 @@
 ## This script cleans the data collected on ecological forecasting courses
 
 ## Author: AM Willson & H Gallo
-## Date modified: 10 February 2022
+## Date modified: 17 March 2022
 
 rm(list = ls())
 
@@ -29,6 +29,7 @@ data = data %>%
   mutate(Sub.topic = recode(Sub.topic,
                             'Data Manipulation/Processing' = 'Data Manipulation',
                             'Uncertainty' = 'Probability & Uncertainty',
-                            'Basic  of Forecasting' = 'Basics of Forecasting'))
+                            'Basic  of Forecasting' = 'Basics of Forecasting',
+                            'Decision Science' = 'Social Science'))
 
 save(data, file = 'Data/cleaned_data_EF_course.RData')

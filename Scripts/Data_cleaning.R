@@ -1,7 +1,7 @@
 ## This script cleans the raw data on courses related to ecological forecasting
 
 ## Author: AM Willson & H Gallo
-## Date modified: 31 January 2022
+## Date modified: 17 March 2022
 
 rm(list = ls())
 
@@ -78,7 +78,7 @@ data = data %>%
                             "Basics of statistics" = "Basics of Statistics",
                             "Science communication" = "Science Communication",
                             "Basics of ecology" = "Basics of Ecology",
-                            "Decision science" = "Decision Science",
+                            "Decision science" = "Social Science",
                             "Data visualization" = "Data Visualization",
                             "Machine Learning" = "Machine Learning",
                             "Introduction to coding" = "Basics of Coding",
@@ -96,7 +96,7 @@ data = data %>%
                             "Science Communication" = "Science Communication",
                             "Data Sources" = "Data Sources",
                             "Data visualization " = "Data Visualization",
-                            "Decision Science" = "Decision Science",
+                            "Decision Science" = "Social Science",
                             "science communication" = "Science Communication",
                             "data visualization" = "Data Visualization",
                             "Science Communication " = "Science Communication",

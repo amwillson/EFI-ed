@@ -3,7 +3,7 @@
 ## categorized the resources according to resource type, topic in forecasting, and resource level
 
 ## Author: AM Willson
-## Date modified: 31 January 2022
+## Date modified: 17 March 2022
 
 rm(list = ls())
 
@@ -88,7 +88,7 @@ data = data %>%
                            'Machine learning' = 'Machine Learning',
                            'Workflows & Open Science' = 'Workflows & Open Science',
                            'Model assessment' = 'Model Assessment',
-                           'Decision science' = 'Decision Science',
+                           'Decision science' = 'Social Science',
                            'Interpreting Forecasts' = 'Science Communication',
                            'Forecasting Textbooks' = 'Forecasting Textbooks',
                            'Resource Repositories' = 'Resource Repositories',

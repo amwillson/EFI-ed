@@ -4,7 +4,7 @@
 ## Supplementary figures are compiled in a separate document
 
 ## Authors: AM Willson & H Gallo
-## Date modified: 10 February 2022
+## Date modified: 17 March 2022
 
 library(tidyverse)
 library(pivottabler)
@@ -50,20 +50,19 @@ EF_online_resources_df$Topic = factor(EF_online_resources_df$Topic,
                                                  'Statistical Models',
                                                  'Workflows & Open Science',
                                                  'Probability & Uncertainty',
-                                                 'State Space Models',
-                                                 'Decision Science',
                                                  'Data Assimilation',
-                                                 'Basics of Statistics',
-                                                 'Basics of Ecology',
-                                                 'Working with Data',
+                                                 'Social Science',
+                                                 'State Space Models',
                                                  'Model Assessment',
+                                                 'Basics of Statistics',
+                                                 'Working with Data',
                                                  'Basics of Coding',
-                                                 'Ethics',
+                                                 'Basics of Ecology',
+                                                 'Data Manipulation',
                                                  'Mechanistic Models',
                                                  'Machine Learning',
-                                                 'Data Sources',
-                                                 'Data Manipulation',
                                                  'Data Visualization',
+                                                 'Data Sources',
                                                  'Science Communication',
                                                  'Traditional Ecological Knowledge'))
 
@@ -82,20 +81,20 @@ p1 = pie_chart_online_resources +
                                'Statistical Models' = "#274c56",
                                'Workflows & Open Science' = "#abd28d",
                                'Probability & Uncertainty' = "#6c218e",
-                               'State Space Models' = "#56c23d", 
-                               'Decision Science' = "#e21c7a",
-                               'Data Assimilation' = "#1e7b20",
-                               'Basics of Statistics' = "#ca50d3",
-                               'Basics of Ecology' = "#3a91fb",
+                               'Data Assimilation' = "#56c23d", 
+                               'Social Science' = "#e21c7a",
+                               'State Space Models' = "#1e7b20",
+                               'Model Assessment' = "#ca50d3",
+                               'Basics of Statistics' = "#3a91fb",
                                'Working with Data' = "#584982", 
-                               'Model Assessment' = "#d0d2f0",
-                               'Basics of Coding' = "#2a2bf0",
-                               'Ethics' = "#c0d122",
-                               'Mechanistic Models' = "#873c1a",
-                               'Machine Learning' = "#f6a0ba", 
-                               'Data Sources' = "#d11f0b",
-                               'Data Manipulation' = "#5d99aa",
-                               'Data Visualization' = '#F0EAD6',
+                               'Basics of Coding' = "#d0d2f0",
+                               'Basics of Ecology' = "#2a2bf0",
+                               'Data Manipulation' = "#c0d122",
+                               'Ethics' = "#873c1a",
+                               'Mechanistic Models' = "#f6a0ba", 
+                               'Machine Learning' = "#d11f0b",
+                               'Data Visualization' = "#5d99aa",
+                               'Data Sources' = '#F0EAD6',
                                'Science Communication' = "#ee983a",
                                'Traditional Ecological Knowledge' = "#000000"))
 
@@ -130,30 +129,27 @@ EF_course_data_df$Topic = factor(EF_course_data_df$Topic,
                                             'Statistical Models',
                                             'Workflows & Open Science',
                                             'Probability & Uncertainty',
-                                            'State Space Models',
-                                            'Decision Science',
                                             'Data Assimilation',
-                                            'Basics of Statistics',
-                                            'Basics of Ecology',
-                                            'Working with Data',
+                                            'Social Science',
+                                            'State Space Models',
                                             'Model Assessment',
+                                            'Basics of Statistics',
+                                            'Working with Data',
                                             'Basics of Coding',
+                                            'Basics of Ecology',
+                                            'Data Manipulation',
                                             'Ethics',
                                             'Mechanistic Models',
                                             'Machine Learning',
-                                            'Data Sources',
-                                            'Data Manipulation'))
-                                            #'Ethics'))
-                                            #'Data Visualization',
-                                            #'Science Communication',
-                                            #'Traditional Ecological Knowledge'))
+                                            'Data Visualization',
+                                            'Data Sources'))
 
 pie_chart_EF_courses <- ggplot(EF_course_data_df, aes(x = "", y = `Number of Resources`, fill = Topic)) + 
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
   guides(fill = guide_legend(ncol = 2, bycol = T)) +
   labs(title = "Forecasting Course Lessons",
-       subtitle = 'n = 159') +
+       subtitle = 'n = 192') +
   theme_void() +
   theme(plot.title = element_text(size = 14, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
@@ -164,20 +160,20 @@ p2 = pie_chart_EF_courses +
                                'Statistical Models' = "#274c56",
                                'Workflows & Open Science' = "#abd28d",
                                'Probability & Uncertainty' = "#6c218e",
-                               'State Space Models' = "#56c23d", 
-                               'Decision Science' = "#e21c7a",
-                               'Data Assimilation' = "#1e7b20",
-                               'Basics of Statistics' = "#ca50d3",
-                               'Basics of Ecology' = "#3a91fb",
+                               'Data Assimilation' = "#56c23d", 
+                               'Social Science' = "#e21c7a",
+                               'State Space Models' = "#1e7b20",
+                               'Model Assessment' = "#ca50d3",
+                               'Basics of Statistics' = "#3a91fb",
                                'Working with Data' = "#584982", 
-                               'Model Assessment' = "#d0d2f0",
-                               'Basics of Coding' = "#2a2bf0",
-                               'Ethics' = "#c0d122",
-                               'Mechanistic Models' = "#873c1a",
-                               'Machine Learning' = "#f6a0ba", 
-                               'Data Sources' = "#d11f0b",
-                               'Data Manipulation' = "#5d99aa",
-                               'Data Visualization' = '#F0EAD6',
+                               'Basics of Coding' = "#d0d2f0",
+                               'Basics of Ecology' = "#2a2bf0",
+                               'Data Manipulation' = "#c0d122",
+                               'Ethics' = "#873c1a",
+                               'Mechanistic Models' = "#f6a0ba", 
+                               'Machine Learning' = "#d11f0b",
+                               'Data Visualization' = "#5d99aa",
+                               'Data Sources' = '#F0EAD6',
                                'Science Communication' = "#ee983a",
                                'Traditional Ecological Knowledge' = "#000000"))
 
@@ -213,20 +209,18 @@ FA_course_data_df$Topic = factor(FA_course_data_df$Topic,
                                             'Statistical Models',
                                             'Workflows & Open Science',
                                             'Probability & Uncertainty',
-                                            #'State Space Models',
-                                            'Decision Science',
-                                            #'Data Assimilation',
-                                            'Basics of Statistics',
-                                            'Basics of Ecology',
-                                            'Working with Data',
+                                            'Social Science',
                                             'Model Assessment',
+                                            'Basics of Statistics',
+                                            'Working with Data',
                                             'Basics of Coding',
+                                            'Basics of Ecology',
+                                            'Data Manipulation',
                                             'Ethics',
                                             'Mechanistic Models',
                                             'Machine Learning',
-                                            'Data Sources',
-                                            'Data Manipulation',
                                             'Data Visualization',
+                                            'Data Sources',
                                             'Science Communication',
                                             'Traditional Ecological Knowledge'))
 
@@ -246,20 +240,20 @@ p3 = pie_chart_FA_courses +
                                'Statistical Models' = "#274c56",
                                'Workflows & Open Science' = "#abd28d",
                                'Probability & Uncertainty' = "#6c218e",
-                               'State Space Models' = "#56c23d", 
-                               'Decision Science' = "#e21c7a",
-                               'Data Assimilation' = "#1e7b20",
-                               'Basics of Statistics' = "#ca50d3",
-                               'Basics of Ecology' = "#3a91fb",
+                               'Data Assimilation' = "#56c23d", 
+                               'Social Science' = "#e21c7a",
+                               'State Space Models' = "#1e7b20",
+                               'Model Assessment' = "#ca50d3",
+                               'Basics of Statistics' = "#3a91fb",
                                'Working with Data' = "#584982", 
-                               'Model Assessment' = "#d0d2f0",
-                               'Basics of Coding' = "#2a2bf0",
-                               'Ethics' = "#c0d122",
-                               'Mechanistic Models' = "#873c1a",
-                               'Machine Learning' = "#f6a0ba", 
-                               'Data Sources' = "#d11f0b",
-                               'Data Manipulation' = "#5d99aa",
-                               'Data Visualization' = '#F0EAD6',
+                               'Basics of Coding' = "#d0d2f0",
+                               'Basics of Ecology' = "#2a2bf0",
+                               'Data Manipulation' = "#c0d122",
+                               'Ethics' = "#873c1a",
+                               'Mechanistic Models' = "#f6a0ba", 
+                               'Machine Learning' = "#d11f0b",
+                               'Data Visualization' = "#5d99aa",
+                               'Data Sources' = '#F0EAD6',
                                'Science Communication' = "#ee983a",
                                'Traditional Ecological Knowledge' = "#000000"))
 
@@ -314,7 +308,7 @@ rm(data)
 ## Forecasting Course by Institution Type ##
 
 B_count = 1 # number of baccalaureate school courses
-R1_count = 5 # number of R1 school courses
+R1_count = 7 # number of R1 school courses
 
 EF_data = EF_data %>%
   filter(Carnegie.Classification.2 != 'NA') %>%
@@ -335,15 +329,16 @@ EF_data_count$Sub.topic = factor(EF_data_count$Sub.topic,
                                             'Probability & Uncertainty',
                                             'Basics of Statistics',
                                             'Working with Data',
-                                            'State Space Models',
                                             'Data Assimilation',
-                                            'Decision Science',
+                                            'State Space Models',
+                                            'Social Science',
                                             'Basics of Coding',
                                             'Model Assessment',
                                             'Mechanistic Models',
                                             'Data Sources',
+                                            'Data Manipulation',
                                             'Ethics',
-                                            'Data Manipulation'))
+                                            'Data Visualization'))
 
 p1 = EF_data_count %>%  
   ggplot(aes(x = fct_rev(Sub.topic), y = n_stan, fill = Carnegie.Classification.2)) +
@@ -397,7 +392,7 @@ course_data_count$Sub.topic = factor(course_data_count$Sub.topic,
                                                 'Machine Learning',
                                                 'Probability & Uncertainty',
                                                 'Data Visualization',
-                                                'Decision Science',
+                                                'Social Science',
                                                 'Workflows & Open Science',
                                                 'Traditional Ecological Knowledge',
                                                 'Model Assessment'))
@@ -571,17 +566,17 @@ full_transformed = transformed_type %>%
 
 # Unweighted map with no institution type, both curriculum levels
 both_location <- plot_usmap('states') +
-  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, color = `Curriculum Level`, size = `Curriculum Level`, shape = `Curriculum Level`), stroke = 1.4) +
+  geom_point(data = full_transformed, aes(x = Longitude.1, y = Latitude.1, fill = `Curriculum Level`, size = `Curriculum Level`, shape = `Curriculum Level`)) +
   labs(title = 'Forecasting and Forecasting-Adjacent Courses') +
   theme(plot.title = element_text(size = 16, hjust = 0.5),
         legend.title = element_text(size = 14, hjust = 0.5),
         legend.text = element_text(size = 12),
         legend.position = c(0.9, 0.5)) +
-  scale_color_manual(values = c('Forecasting' = '#177E89', 'Forecasting-Adjacent' = '#72e5ef')) +
-  scale_size_manual(values = c('Forecasting' = 3, 'Forecasting-Adjacent' = 3)) +
-  scale_shape_manual(values = c('Forecasting' = 17, 'Forecasting-Adjacent' = 16))
+  scale_fill_manual(values = c('Forecasting' = '#177E89', 'Forecasting-Adjacent' = '#72e5ef')) +
+  scale_size_manual(values = c('Forecasting' = 2.5, 'Forecasting-Adjacent' = 2.5)) +
+  scale_shape_manual(values = c('Forecasting' = 24, 'Forecasting-Adjacent' = 21))
 both_location
-ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg'), 
+ggsave(both_location, filename = 'Plots/map_both_noinst.jpeg', 
        width = 11.9, height = 6, units = 'in')
 
 # Unweighted map with institution type, both curriculum levels

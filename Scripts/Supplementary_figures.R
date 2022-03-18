@@ -22,7 +22,7 @@ EF_data %>%
                                        'Basics of Ecology',
                                        'Data Assimilation',
                                        'State Space Models',
-                                       'Decision Science',
+                                       'Social Science',
                                        'Working with Data',
                                        'Basics of Coding',
                                        'Basics of Statistics',

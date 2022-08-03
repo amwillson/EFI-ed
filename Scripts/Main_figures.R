@@ -277,9 +277,11 @@ pg_fin = plot_grid(pg + theme(plot.margin = unit(c(0, 0, -1.5, 0), 'in')),
 #ggsave(pg_fin, filename = 'Plots/Figure2_pie.jpeg',
 #       width = 13.2, height = 7, units = 'in')
 
-ggsave(pg_fin, filename = 'Plots/Figure2.pdf',
-       width = 13.2, height = 7, units = 'in')
+#ggsave(pg_fin, filename = 'Plots/Figure2.pdf',
+#       width = 13.2, height = 7, units = 'in')
 
+ggsave(pg_fin, filename = 'Plots/Figure2.eps',
+       width = 13.2, height = 7, units = 'in', device = 'eps')
 #### Figure 3 ####
 
 rm(list = ls())
@@ -483,7 +485,10 @@ pg = plot_grid(p3,
                nrow = 1, rel_widths = c(0.5, 0.3, 0.3),
                labels = c('A', 'B', 'C'))
 pg
-ggsave(pg, filename = 'Plots/barplot_carnegie_subtopic.jpeg', 
-       width = 14, height = 6, units = 'in')
-ggsave(pg, filename = 'Plots/Figure3.pdf',
-       width = 14, height = 6, units = 'in')
+#ggsave(pg, filename = 'Plots/barplot_carnegie_subtopic.jpeg', 
+#       width = 14, height = 6, units = 'in')
+#ggsave(pg, filename = 'Plots/Figure3.pdf',
+#       width = 14, height = 6, units = 'in')
+
+ggsave(pg, filename = 'Plots/Figure3.eps',
+       width = 14, height = 6, units = 'in', device = 'eps')

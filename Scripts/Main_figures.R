@@ -58,7 +58,7 @@ EF_online_resources_df$Topic = factor(EF_online_resources_df$Topic,
 pie_chart_online_resources <- ggplot(EF_online_resources_df, aes(x = "", y = `Number of Resources`, fill = Topic)) + 
   geom_bar(stat = "identity", width = 1) + 
   coord_polar("y", start = 0) + 
-  labs(title = "Open-access, Online Resources", subtitle = 'n = 237') +
+  labs(title = "Open-access, Online Resources", subtitle = 'n = 409') +
   theme_void() +
   theme(plot.title = element_text(size = 18, hjust = 0.5),
         plot.subtitle = element_text(size = 12, hjust = 0.5),
@@ -277,11 +277,11 @@ pg_fin = plot_grid(pg + theme(plot.margin = unit(c(0, 0, -1.5, 0), 'in')),
 #ggsave(pg_fin, filename = 'Plots/Figure2_pie.jpeg',
 #       width = 13.2, height = 7, units = 'in')
 
-#ggsave(pg_fin, filename = 'Plots/Figure2.pdf',
-#       width = 13.2, height = 7, units = 'in')
+ggsave(pg_fin, filename = 'Plots/Figure2.pdf',
+       width = 13.2, height = 7, units = 'in')
 
-ggsave(pg_fin, filename = 'Plots/Figure2.eps',
-       width = 13.2, height = 7, units = 'in', device = 'eps')
+#ggsave(pg_fin, filename = 'Plots/Figure2.eps',
+#       width = 13.2, height = 7, units = 'in', device = 'eps')
 #### Figure 3 ####
 
 rm(list = ls())
